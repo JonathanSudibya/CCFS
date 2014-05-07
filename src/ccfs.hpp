@@ -18,7 +18,7 @@ using std::fstream;
 #define ALLOCATION_START HEADER_SIZE
 #define ALLOCATION_NUM 256
 #define SLOT_SIZE 512
-#define SLOT_NUM 65753 
+#define SLOT_NUM 65536 
 
 /**
 *	Slot
@@ -67,8 +67,10 @@ private:
 public:
 	Slot files[SLOT_NUM]; 	// data seluruh slot file yang ada
 	
+	string filename;		// nama filesystem
+	int kapasitas			// kapasitas filesystem
 	int available;			// jumlah slot yang masih kosong
-	int firstEmpty;			// slot pertama yang masih kosong
+	int firstempty;			// slot pertama yang masih kosong
 	time_t mount_time;		// waktu mounting, diisi di konstruktor
 	
 	/* konstruktor & destruktor */

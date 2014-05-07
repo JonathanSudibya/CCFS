@@ -167,4 +167,89 @@ void CCFS::load(string filename){
 		handle.close();
 		throw runtime_error("File not valid");
 	}
+
+	/* baca file name */
+	filename = string(header+4,32);
+
+	/* baca kapasitas file system */
+	kapasitas = header[40];
+	kapasitas = kapasitas << 8;
+	kapasitas = kapasitas + header[39];
+	kapasitas = kapasitas << 8;
+	kapasitas = kapasitas + header[38];
+	kapasitas = kapasitas << 8;
+	kapasitas = kapasitas + header[37];
+
+	/* baca jumlah block yang belum terpakai. */
+	available = header[44];
+	available = available << 8;
+	available = available + header[43];
+	available = available << 8;
+	available = available + header[42];
+	available = available << 8;
+	available = available + header[41];
+
+	/* baca firstempty */
+	firstempty = header[48];
+	firstempty = firstempty << 8;
+	firstempty = firstempty + header[47];
+	firstempty = firstempty << 8;
+	firstempty = firstempty + header[46];
+	firstempty = firstempty << 8;
+	firstempty = firstempty + header[45];
+
+	/* baca seluruh slot */
+	for (int i = 0; i < SLOT_NUM; i++){
+		files[i].readFromFile(handle);
+	}	
+}
+
+void CCFS::writeHeader(){
+	char buffer[HEADER_SIZE];
+
+	/* tulis magic string ke buffer */
+	memcpy(buffer,"CCFS",4);
+
+	/* tulis nama file ke buffer */
+	int fname_len = int fname_len = name.length() < 32 ? name.length() : 32;
+	memcpy(buffer+4,filename,fname_len);
+
+	/* tulis kapasitas filesystem */
+	buffer[37] = (unsigned char) kapasitas;
+	buffer[38] =(unsigned char) kapasitas >> 8;
+	buffer[39] =(unsigned char) kapasitas >> 16;
+	buffer[40] =(unsigned char) kapasitas >> 24;
+
+	/*tulis available slot */
+	buffer[41] = (unsigned char) available;
+	buffer[42] =(unsigned char) available >> 8;
+	buffer[43] =(unsigned char) available >> 16;
+	buffer[44] =(unsigned char) available >> 24;
+
+	/* tulis firstempty */
+	buffer[37] = (unsigned char) firstempty;
+	buffer[38] =(unsigned char) firstempty >> 8;
+	buffer[39] =(unsigned char)	firstempty >> 16;
+	buffer[40] =(unsigned char) firstempty >> 24;
+
+	/* end of header */
+	memcpy(buffer+508,"SFCC",4);
+
+	handle.seekp(0);
+
+	handle.write(buffer, HEADER_SIZE);
+	handle.flush();	
+}
+
+/* tulis data slot ke-index pada file simple.fs di posisi yang sesuai */
+void CCFS::writeFile(int index){
+
+	/* hitung posisi awal penulisan slot */
+	int offset = DATA_START + (index * SLOT_SIZE);
+	
+	/* geser pointer penulisan file sesuai offset */
+	handle.seekp(offset);
+
+	/* tulis data slot */
+	files[index].writeToFile(handle);
 }
