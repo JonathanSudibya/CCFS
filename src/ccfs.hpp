@@ -13,10 +13,12 @@ using std::fstream;
 
 /** deklarasi konstanta ccfs **/
 
-#define HEADER_SIZE 8
-#define DATA_START HEADER_SIZE
-#define SLOT_SIZE 128
-#define SLOT_NUM 255
+#define HEADER_SIZE 512
+#define DATA_START (257 * 512)
+#define ALLOCATION_START HEADER_SIZE
+#define ALLOCATION_NUM 256
+#define SLOT_SIZE 512
+#define SLOT_NUM 65753 
 
 /**
 *	Slot
@@ -26,9 +28,13 @@ using std::fstream;
 class Slot
 {
 public:
-	string name; 		// nama file	
+	string name; 		// nama file2
+	char atribut;		// atribut file
+	short tgl_buat;	// tgl file dibuat
+	short tgl_modif;	// tgl file dimodifikasi terakhir
+	short indexDP;		// index pertama Data Pool
 	int size;			// ukuran file
-	char content[100];	// isi file
+	char content[480];	// isi file
 
 	/** konstruktor */
 	Slot();
@@ -66,8 +72,8 @@ public:
 	time_t mount_time;		// waktu mounting, diisi di konstruktor
 	
 	/* konstruktor & destruktor */
-	SimpleFS();
-	~SimpleFS();
+	CCFS();
+	~CCFS();
 	
 	/* buat file simple.fs baru */
 	void create(string filename);
