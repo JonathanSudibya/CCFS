@@ -1,7 +1,7 @@
 # generic makefile
 
 # the module names
-MODULES = main.cpp ccfs.cpp fuse_impl.cpp
+MODULES = main.cpp simplefs.cpp fuse_impl.cpp
 
 LIB = `pkg-config fuse --libs`
 INCLUDE = `pkg-config fuse --cflags`

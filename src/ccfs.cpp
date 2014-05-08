@@ -128,11 +128,11 @@ void CCFS::create(string filename){
 
 	/* inisialisasi header */
 	available = SLOT_NUM;
-	firstEmpty = 0;
+	firstempty = 0;
 	writeHeader();
 
 	/* inisialisasi allocation table */
-
+	writeAllocation();
 
 	/* inisialisasi slot dengan data kosong */
 	char buffer[SLOT_SIZE];
@@ -198,6 +198,12 @@ void CCFS::load(string filename){
 	firstempty = firstempty << 8;
 	firstempty = firstempty + header[45];
 
+	/* baca seluruh allocation table */
+	for (int i = 0;i < SLOT_SIZE*ALLOCATION_NUM;i++)
+	{
+		handle.read(allocation[i/2].asByte[i%2],1); 
+	}
+
 	/* baca seluruh slot */
 	for (int i = 0; i < SLOT_NUM; i++){
 		files[i].readFromFile(handle);
@@ -211,8 +217,8 @@ void CCFS::writeHeader(){
 	memcpy(buffer,"CCFS",4);
 
 	/* tulis nama file ke buffer */
-	int fname_len = int fname_len = name.length() < 32 ? name.length() : 32;
-	memcpy(buffer+4,filename,fname_len);
+	int fname_len = filename.length() < 32 ? filename.length() : 32;
+	memcpy(buffer+4,filename.c_str(),fname_len);
 
 	/* tulis kapasitas filesystem */
 	buffer[37] = (unsigned char) kapasitas;
@@ -253,3 +259,20 @@ void CCFS::writeFile(int index){
 	/* tulis data slot */
 	files[index].writeToFile(handle);
 }
+
+void CCFS::writeAllocation(){
+
+	char buffer[SLOT_SIZE*ALLOCATION_NUM];
+	/* tulis semua data */
+	for (int i = 0;i < SLOT_SIZE*ALLOCATION_NUM;i++)
+	{
+		allocation[i/2] = 0;
+		buffer[i] = allocation[i/2].asByte[i%2];
+	}
+
+	handle.seekp(0);
+
+	handle.write(buffer, SLOT_SIZE*ALLOCATION_NUM);
+	handle.flush();	
+}
+
